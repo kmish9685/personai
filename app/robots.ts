@@ -7,6 +7,6 @@ export default function robots(): MetadataRoute.Robots {
             allow: '/',
             disallow: '/api/', // Disallow API routes from indexing
         },
-        sitemap: 'https://persona-ai.vercel.app/sitemap.xml',
+        sitemap: 'https://personai.fun/sitemap.xml',
     };
 }

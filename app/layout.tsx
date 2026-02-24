@@ -3,17 +3,46 @@ import Script from "next/script";
 import "./globals.css";
 
 export const metadata: Metadata = {
+  metadataBase: new URL('https://personai.fun'),
   title: "Persona AI - Stop Chatting. Start Deciding.",
-  description: "GPTs give you options. Persona AI gives you answers. Simulate the minds of Musk, Naval, and Graham to make better decisions.",
+  description: "GPTs give you options. Persona AI gives you answers. Simulate the minds of Musk, Naval, and Graham to make better decisions. The AI decision engine for founders, CEOs, and builders.",
+  keywords: [
+    "AI decision engine",
+    "founder decision tool",
+    "analysis paralysis",
+    "mental models AI",
+    "Naval Ravikant AI",
+    "Elon Musk AI",
+    "Paul Graham AI",
+    "startup decision maker",
+    "binary verdict AI",
+    "kill signals startup",
+    "decision framework tool",
+    "ChatGPT alternative for founders",
+  ],
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+    },
+  },
+  alternates: {
+    canonical: 'https://personai.fun',
+  },
   openGraph: {
     title: "Persona AI - Stop Chatting. Start Deciding.",
     description: "GPTs give you options. Persona AI gives you answers. Simulate the minds of Musk, Naval, and Graham to make better decisions.",
     type: "website",
+    url: 'https://personai.fun',
+    siteName: 'Persona AI',
   },
   twitter: {
     card: "summary_large_image",
     title: "Persona AI - Stop Chatting. Start Deciding.",
     description: "GPTs give you options. Persona AI gives you answers. Simulate the minds of Musk, Naval, and Graham to make better decisions.",
+    creator: "@kom556555",
   },
   icons: {
     icon: '/logo.png',
