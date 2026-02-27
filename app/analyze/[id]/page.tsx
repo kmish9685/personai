@@ -4,6 +4,7 @@ import { redirect } from 'next/navigation';
 import Link from 'next/link';
 import DecisionStatus from '@/components/decision/DecisionStatus';
 import GutCheckIntegration from '@/components/decision/GutCheckIntegration';
+import { DecisionChat } from '@/components/decision/DecisionChat';
 
 import { ArrowLeft, AlertTriangle, TrendingUp, Skull, CheckCircle, Heart } from 'lucide-react';
 
@@ -92,13 +93,13 @@ export default async function AnalysisResultPage(props: { params: Promise<{ id: 
                 {/* Gut Check Results (If Available) */}
                 {decision.gut_reaction && (
                     <div className={`mb-10 border rounded-2xl p-6 relative overflow-hidden ${decision.gut_reaction.alignment === 'agrees' ? 'bg-green-500/5 border-green-500/20' :
-                            decision.gut_reaction.alignment === 'disagrees' ? 'bg-red-500/5 border-red-500/20' :
-                                'bg-yellow-500/5 border-yellow-500/20'
+                        decision.gut_reaction.alignment === 'disagrees' ? 'bg-red-500/5 border-red-500/20' :
+                            'bg-yellow-500/5 border-yellow-500/20'
                         }`}>
                         <div className="flex items-center gap-3 mb-2 relative z-10">
                             <div className={`w-10 h-10 rounded-full flex items-center justify-center ${decision.gut_reaction.alignment === 'agrees' ? 'bg-green-500/20' :
-                                    decision.gut_reaction.alignment === 'disagrees' ? 'bg-red-500/20' :
-                                        'bg-yellow-500/20'
+                                decision.gut_reaction.alignment === 'disagrees' ? 'bg-red-500/20' :
+                                    'bg-yellow-500/20'
                                 }`}>
                                 <Heart size={20} className={
                                     decision.gut_reaction.alignment === 'agrees' ? 'text-green-500' :
@@ -113,8 +114,8 @@ export default async function AnalysisResultPage(props: { params: Promise<{ id: 
                         </div>
 
                         <p className={`mt-4 text-sm leading-relaxed relative z-10 ${decision.gut_reaction.alignment === 'agrees' ? 'text-green-200/80' :
-                                decision.gut_reaction.alignment === 'disagrees' ? 'text-red-200/80' :
-                                    'text-yellow-200/80'
+                            decision.gut_reaction.alignment === 'disagrees' ? 'text-red-200/80' :
+                                'text-yellow-200/80'
                             }`}>
                             {decision.gut_reaction.alignment === 'agrees' && "Your intuition matches the logical analysis. You should proceed with high confidence."}
                             {decision.gut_reaction.alignment === 'disagrees' && "Warning: The AI logic points one way, but your gut wants the opposite. Usually, your gut knows best. Re-read the analysis to see if your gut reaction is fear or true intuition."}
@@ -287,6 +288,17 @@ export default async function AnalysisResultPage(props: { params: Promise<{ id: 
                             </div>
                         </Link>
                     </div>
+                </div>
+
+                {/* Follow-up / Decision Thread Chat */}
+                <div className="mb-12">
+                    <DecisionChat
+                        decisionId={decision.id}
+                        title={decision.title}
+                        context={decision.input_data?.context || 'No specific context provided.'}
+                        verdict={recommendation.verdict}
+                        initialPersona={decision.input_data?.personaMode || 'elon'}
+                    />
                 </div>
             </div>
         </div>
