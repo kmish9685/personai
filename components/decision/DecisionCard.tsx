@@ -17,6 +17,19 @@ export default function DecisionCard({ decision }: { decision: any }) {
     const score = result.conviction_score || 0;
     const isHighScore = score >= 90;
 
+    const gutReaction = decision.gut_reaction; // Parsed JSON from DB
+
+    // Helper to get emoji for gut feeling
+    const getGutEmoji = (feeling: string) => {
+        switch (feeling) {
+            case 'relieved': return '😌';
+            case 'disappointed': return '😞';
+            case 'confused': return '😕';
+            case 'validated': return '✓';
+            default: return '🧠';
+        }
+    };
+
     const handleDelete = async (e: React.MouseEvent) => {
         e.preventDefault();
         e.stopPropagation(); // Stop card click
@@ -68,12 +81,22 @@ export default function DecisionCard({ decision }: { decision: any }) {
                     </h3>
                 </div>
 
-                {/* Always Visible: Score & Date */}
-                <div className="flex items-center gap-3 mb-4 text-xs font-mono text-zinc-500">
+                {/* Always Visible: Score & Date & Gut Check */}
+                <div className="flex flex-wrap items-center gap-2 mb-4 text-xs font-mono">
                     <span className={`px-2 py-0.5 rounded ${isHighScore ? 'bg-green-500/20 text-green-400' : 'bg-[#5e6ad2]/20 text-[#5e6ad2]'}`}>
                         {score}% Conviction
                     </span>
-                    <span>{new Date(decision.created_at).toLocaleDateString()}</span>
+
+                    {gutReaction && (
+                        <span className={`px-2 py-0.5 rounded flex items-center gap-1 ${gutReaction.alignment === 'agrees' ? 'bg-green-500/10 border border-green-500/20 text-green-400' :
+                                gutReaction.alignment === 'disagrees' ? 'bg-red-500/10 border border-red-500/20 text-red-400' :
+                                    'bg-yellow-500/10 border border-yellow-500/20 text-yellow-400'
+                            }`}>
+                            {getGutEmoji(gutReaction.feeling)} {gutReaction.feeling}
+                        </span>
+                    )}
+
+                    <span className="text-zinc-500 flex-1 text-right">{new Date(decision.created_at).toLocaleDateString()}</span>
                 </div>
 
                 {/* Verdict: Truncated default, full expanded */}
