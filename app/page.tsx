@@ -311,9 +311,9 @@ function LandingPageContent() {
             <p className="text-[15px]" style={{ color: 'var(--text-secondary)' }}>From brain fog to binary verdict in 3 steps.</p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 relative">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-6 relative">
             {/* Connecting line */}
-            <div className="hidden md:block absolute top-[60px] left-[20%] right-[20%] h-px" style={{ background: 'linear-gradient(to right, transparent, rgba(94,106,210,0.2), transparent)' }} />
+            <div className="hidden md:block absolute top-[60px] left-[12%] right-[12%] h-px" style={{ background: 'linear-gradient(to right, transparent, rgba(94,106,210,0.2), transparent)' }} />
 
             {[
               {
@@ -343,6 +343,17 @@ function LandingPageContent() {
                   { key: 'Verdict', value: 'NO (Wait)', color: '#e05d5d' },
                   { key: 'Conviction', value: '87%', color: '#f2b84b' },
                   { key: 'Kill Signal', value: '🔴 Active', color: '#e05d5d' }
+                ]
+              },
+              {
+                num: "04",
+                title: "Follow-up Threads",
+                desc: "Treat the AI like a continuing advisor. Ask follow-up questions without re-explaining the context.",
+                label: "Follow-Up Chat",
+                detail: '"What if I get a bridge loan from my family instead?"',
+                items: [
+                  { color: '#5e6ad2', text: 'Context retained invisibly' },
+                  { color: '#5e6ad2', text: 'Persona adapts instantly' }
                 ]
               }
             ].map((step, i) => (
@@ -410,9 +421,9 @@ function LandingPageContent() {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             <div className="p-8 rounded-2xl" style={{ background: 'var(--bg-elevated)', border: '1px solid var(--border-default)' }}>
               <Clock className="mb-5" size={24} style={{ color: '#5e6ad2' }} />
-              <h3 className="font-semibold text-[16px] mb-3" style={{ color: 'var(--text-primary)' }}>Continuous Memory</h3>
+              <h3 className="font-semibold text-[16px] mb-3" style={{ color: 'var(--text-primary)' }}>Decision Threads & Follow-ups</h3>
               <p className="text-[14px] leading-relaxed" style={{ color: 'var(--text-secondary)' }}>
-                Real decisions evolve over time. Maintain persistent chat threads where the engine automatically tracks your financial runway, constraints, and past verdicts without re-explaining yourself.
+                Real decisions evolve over time. Maintain persistent chat threads where the engine automatically tracks your financial runway, constraints, and past verdicts. Ask follow-up questions without re-explaining yourself.
               </p>
             </div>
 
@@ -570,9 +581,9 @@ function LandingPageContent() {
                   'Unlimited Decision Analysis',
                   'All 6 Decision Frameworks',
                   'Binary Verdicts & Kill Signals',
-                  'Framework Chat Mode',
-                  'Decision History',
-                  'Priority Inference'
+                  'Decision Context Threads',
+                  'Continuous Chat Memory',
+                  'Priority Model Inference'
                 ].map((feature, i) => (
                   <div key={i} className="flex items-center gap-2.5 text-[14px]" style={{ color: 'var(--text-secondary)' }}>
                     <Check size={14} className="shrink-0" style={{ color: '#5e6ad2' }} />
