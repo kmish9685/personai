@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { AlertCircle, Loader2, ArrowRight, ArrowLeft, Check, Target, Clock, Shield, LifeBuoy, Crosshair, Sparkles } from 'lucide-react';
 import { Paywall } from '@/components/Paywall';
@@ -100,8 +100,26 @@ export function DecisionForm({ initialValues, vizData, initialTitle = '', initia
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [error, setError] = useState('');
     const [showPaywall, setShowPaywall] = useState(false);
-    const [remainingFree, setRemainingFree] = useState<number | null>(null);
     const [showAchievement, setShowAchievement] = useState(false);
+
+    // Usage state
+    const [usageData, setUsageData] = useState<{ isPaid: boolean; remaining: number; limit: number; used: number } | null>(null);
+
+    // Fetch usage on mount
+    useEffect(() => {
+        const fetchUsage = async () => {
+            try {
+                const res = await fetch('/api/usage');
+                if (res.ok) {
+                    const data = await res.json();
+                    setUsageData(data);
+                }
+            } catch (e) {
+                console.error("Failed to fetch usage data:", e);
+            }
+        };
+        fetchUsage();
+    }, []);
 
     // Total steps: quiz options (4) + text input (1) + kill signals (1) = 6
     const TOTAL_STEPS = STEPS.length + 2; // +1 for text, +1 for kill signals
@@ -214,8 +232,8 @@ export function DecisionForm({ initialValues, vizData, initialTitle = '', initia
                 throw new Error(responseData.error || `HTTP ${res.status}: Analysis failed`);
             }
 
-            if (responseData.remaining_free !== undefined && responseData.remaining_free !== 'unlimited') {
-                setRemainingFree(responseData.remaining_free);
+            if (responseData.remaining_free !== undefined && responseData.remaining_free !== 'unlimited' && usageData) {
+                setUsageData(prev => prev ? { ...prev, remaining: responseData.remaining_free } : null);
             }
 
             if (!responseData.id) {
@@ -277,6 +295,26 @@ export function DecisionForm({ initialValues, vizData, initialTitle = '', initia
 
     return (
         <div className="w-full max-w-2xl mx-auto">
+            {/* Usage Banner */}
+            {usageData && !usageData.isPaid && !showAchievement && (
+                <div className={clsx(
+                    "mb-6 flex items-center justify-between p-3 rounded-lg border text-sm animate-fade-in",
+                    usageData.remaining > 2 ? "bg-white/[0.03] border-white/10 text-zinc-400" :
+                        usageData.remaining > 0 ? "bg-orange-500/10 border-orange-500/30 text-orange-200" :
+                            "bg-red-500/10 border-red-500/30 text-red-200 shadow-[0_0_15px_rgba(239,68,68,0.1)]"
+                )}>
+                    <div className="flex items-center gap-2 font-medium">
+                        {usageData.remaining === 0 ? (
+                            <><AlertCircle size={16} className="text-red-400" /> Free limit reached</>
+                        ) : usageData.remaining === 1 ? (
+                            <><AlertCircle size={16} className="text-orange-400 animate-pulse" /> This is your last free decision</>
+                        ) : (
+                            <><Target size={16} className={usageData.remaining > 2 ? "text-zinc-500" : "text-orange-400"} /> {usageData.remaining} of {usageData.limit} free decisions left</>
+                        )}
+                    </div>
+                </div>
+            )}
+
             {/* Progress Bar */}
             <div className="mb-8">
                 <div className="flex items-center justify-between mb-2">
@@ -550,11 +588,13 @@ export function DecisionForm({ initialValues, vizData, initialTitle = '', initia
                         <p className="text-center text-zinc-600 text-xs mt-4 uppercase tracking-widest">
                             ⚡ Analysis completes in ~30 seconds
                         </p>
-                        {remainingFree !== null && (
-                            <p className="text-center text-[#5e6ad2]/60 text-xs mt-2">
-                                {remainingFree > 0
-                                    ? `${remainingFree} free ${remainingFree === 1 ? 'analysis' : 'analyses'} remaining`
-                                    : 'This is your last free analysis'
+                        {usageData && !usageData.isPaid && usageData.remaining !== null && (
+                            <p className={clsx("text-center text-xs mt-2",
+                                usageData.remaining > 0 ? "text-[#5e6ad2]/60" : "text-red-400"
+                            )}>
+                                {usageData.remaining > 0
+                                    ? `${usageData.remaining} free ${usageData.remaining === 1 ? 'analysis' : 'analyses'} remaining`
+                                    : 'You need to upgrade to run this analysis'
                                 }
                             </p>
                         )}
