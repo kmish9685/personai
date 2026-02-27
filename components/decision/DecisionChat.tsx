@@ -27,8 +27,29 @@ export function DecisionChat({ decisionId, title, context, verdict, initialPerso
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const [currentPersona, setCurrentPersona] = useState(initialPersona);
+    const [remaining, setRemaining] = useState<number | null>(null);
 
     const messagesEndRef = useRef<HTMLDivElement>(null);
+
+    // Dynamic Suggested Prompts based on Verdict
+    const getSuggestedPrompts = () => {
+        const prompts = [
+            "What's my immediate next step?",
+            "Debate me: Defend the opposite path.",
+            "What's a hidden risk I'm missing?"
+        ];
+
+        const lowerVerdict = verdict.toLowerCase();
+        if (lowerVerdict.includes('no') || lowerVerdict.includes('stop') || lowerVerdict.includes('wait')) {
+            prompts.unshift("How do I fix the main constraint?");
+        } else {
+            prompts.unshift("How can I accelerate this?");
+        }
+
+        return prompts.slice(0, 3);
+    };
+
+    const suggestedPrompts = getSuggestedPrompts();
 
     const scrollToBottom = () => {
         messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -92,6 +113,10 @@ Instructions:
                 setMessages(prev => [...prev, aiMsg]);
             }
 
+            if (data.remaining_free !== undefined) {
+                setRemaining(data.remaining_free);
+            }
+
         } catch (err: any) {
             console.error("Chat error:", err);
             setError(err.message || 'Failed to send message. You may have hit a limit.');
@@ -136,13 +161,30 @@ Instructions:
             {/* Messages Area */}
             <div className="flex-1 overflow-y-auto p-4 space-y-4 min-h-[300px] custom-scrollbar bg-black/20">
                 {messages.length === 0 ? (
-                    <div className="h-full flex flex-col items-center justify-center text-center opacity-70 p-6">
+                    <div className="h-full flex flex-col items-center justify-center text-center p-6">
                         <div className="w-12 h-12 rounded-full bg-white/5 flex items-center justify-center mb-4">
                             <Bot size={24} className="text-zinc-500" />
                         </div>
-                        <p className="text-sm text-zinc-400 max-w-sm">
+                        <p className="text-sm text-zinc-400 max-w-sm mb-6">
                             Ask a follow up question. The AI knows the context of your decision and its original verdict.
                         </p>
+
+                        {/* Suggested Prompts */}
+                        <div className="flex flex-wrap justify-center gap-2">
+                            {suggestedPrompts.map((prompt, i) => (
+                                <button
+                                    key={i}
+                                    onClick={() => {
+                                        setInput(prompt);
+                                        // Triggering send immediately would need a small refactor or useEffect, 
+                                        // let's just let them click and then hit send for better UX/control.
+                                    }}
+                                    className="px-3 py-1.5 rounded-full bg-zinc-900 border border-white/10 text-[11px] text-zinc-300 hover:bg-white/5 hover:border-[#5e6ad2]/50 transition-all text-left"
+                                >
+                                    👉 {prompt}
+                                </button>
+                            ))}
+                        </div>
                     </div>
                 ) : (
                     messages.filter(m => m.role !== 'system').map((msg, idx) => (
@@ -185,6 +227,11 @@ Instructions:
 
             {/* Input Box */}
             <div className="p-4 border-t border-white/5 bg-black/40">
+                {remaining !== null && (
+                    <div className={`text-[10px] mb-2 uppercase tracking-widest font-bold ${remaining <= 2 ? 'text-red-400' : 'text-zinc-500'}`}>
+                        {remaining} free messages remaining today
+                    </div>
+                )}
                 <div className="relative">
                     <input
                         type="text"

@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import ChatDemoSection from '@/components/landing/ChatDemoSection';
 import { Suspense, useState, useEffect } from 'react';
-import { ArrowRight, Check, X, Target, Brain, ShieldAlert, Zap, BarChart3, HelpCircle, ChevronLeft, ChevronRight, Sparkles, Clock, Users, TrendingUp, Eye, Shield } from 'lucide-react';
+import { ArrowRight, Check, X, Target, Brain, ShieldAlert, Zap, BarChart3, HelpCircle, ChevronLeft, ChevronRight, Sparkles, Clock, Users, TrendingUp, Eye, Shield, AlertTriangle } from 'lucide-react';
 import { SignedIn, SignedOut, UserButton, useUser } from '@clerk/nextjs';
 import BoardSection from '@/components/landing/BoardSection';
 import ComparisonSection from '@/components/landing/ComparisonSection';
@@ -196,6 +196,48 @@ function LandingPageContent() {
 
       {/* ─── BOARDROOM ─── */}
       <BoardSection />
+
+      {/* ─── NEW PRIORITY: STRATEGIC COMPANION (Addictive Loops) ─── */}
+      <section className="relative z-10 px-6 lg:px-8 py-24 border-y animate-fade-up" style={{ background: 'var(--bg-surface)', borderColor: 'var(--border-subtle)', animationDelay: '0.5s' }}>
+        <div className="max-w-5xl mx-auto">
+          <div className="text-center mb-14">
+            <div className="inline-flex items-center gap-2 px-2.5 py-1 rounded-full mb-6" style={{ background: 'rgba(94,106,210,0.1)', border: '1px solid rgba(94,106,210,0.2)' }}>
+              <Sparkles size={14} style={{ color: '#5e6ad2' }} />
+              <span className="text-[12px] font-semibold uppercase tracking-[0.06em]" style={{ color: '#5e6ad2' }}>Engineering-Grade Accountability</span>
+            </div>
+            <h2 className="text-3xl sm:text-[44px] font-semibold mb-3" style={{ letterSpacing: '-0.03em' }}>Your strategic companion.</h2>
+            <p className="text-[15px] max-w-2xl mx-auto leading-relaxed" style={{ color: 'var(--text-secondary)' }}>
+              Decisions aren't made in a vacuum. We built Persona AI to remember your context, challenge your assumptions, and pull you back into execution mode.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="p-8 rounded-2xl group hover:border-[#5e6ad2]/50 transition-all" style={{ background: 'var(--bg-elevated)', border: '1px solid var(--border-default)' }}>
+              <Clock className="mb-5 group-hover:scale-110 transition-transform" size={24} style={{ color: '#5e6ad2' }} />
+              <h3 className="font-semibold text-[16px] mb-3" style={{ color: 'var(--text-primary)' }}>Decision Threads & Memory</h3>
+              <p className="text-[14px] leading-relaxed" style={{ color: 'var(--text-secondary)' }}>
+                Ask follow-up questions without re-explaining the context. The engine invisibly retains your stakes, runway, and constraints across every debate.
+              </p>
+            </div>
+
+            <div className="p-8 rounded-2xl group hover:border-amber-500/50 transition-all" style={{ background: 'var(--bg-elevated)', border: '1px solid var(--border-default)' }}>
+              <AlertTriangle className="mb-5 group-hover:scale-110 transition-transform" size={24} style={{ color: '#f2b84b' }} />
+              <h3 className="font-semibold text-[16px] mb-3" style={{ color: 'var(--text-primary)' }}>Accountability Loops</h3>
+              <p className="text-[14px] leading-relaxed" style={{ color: 'var(--text-secondary)' }}>
+                Most decisions die due to lack of action. Our dashboard flags stale decisions and prompts you for a reality check 7 days later to ensure you executed.
+              </p>
+            </div>
+
+            <div className="p-8 rounded-2xl group hover:border-[#4dac68]/50 transition-all" style={{ background: 'var(--bg-elevated)', border: '1px solid var(--border-default)' }}>
+              <Zap className="mb-5 group-hover:scale-110 transition-transform" size={24} style={{ color: '#4dac68' }} />
+              <h3 className="font-semibold text-[16px] mb-3" style={{ color: 'var(--text-primary)' }}>Instant Context-Prompts</h3>
+              <p className="text-[14px] leading-relaxed" style={{ color: 'var(--text-secondary)' }}>
+                Don't know what to ask? The AI generates one-click contextual follow-ups like "What's my biggest blindspot?" or "Debate me: why should I wait?"
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
 
       {/* ─── 2. NOT ANOTHER CHATBOT — 1px gap grid ─── */}
       <section className="relative z-10 px-6 lg:px-8 py-24 border-y" style={{ background: 'var(--bg-surface)', borderColor: 'var(--border-subtle)' }}>
@@ -404,47 +446,7 @@ function LandingPageContent() {
         </div>
       </section>
 
-      {/* ─── NEW: STRATEGIC COMPANION (Backlog Features) ─── */}
-      <section className="relative z-10 px-6 lg:px-8 py-24 border-t" style={{ background: 'var(--bg-surface)', borderColor: 'var(--border-subtle)' }}>
-        <div className="max-w-5xl mx-auto">
-          <div className="text-center mb-14">
-            <div className="inline-flex items-center gap-2 px-2.5 py-1 rounded-full mb-6" style={{ background: 'rgba(94,106,210,0.1)', border: '1px solid rgba(94,106,210,0.2)' }}>
-              <Sparkles size={14} style={{ color: '#5e6ad2' }} />
-              <span className="text-[12px] font-semibold uppercase tracking-[0.06em]" style={{ color: '#5e6ad2' }}>Beyond a Calculator</span>
-            </div>
-            <h2 className="text-3xl sm:text-[44px] font-semibold mb-3" style={{ letterSpacing: '-0.03em' }}>Your strategic companion.</h2>
-            <p className="text-[15px] max-w-2xl mx-auto leading-relaxed" style={{ color: 'var(--text-secondary)' }}>
-              Decisions aren't made in a vacuum. We built Persona AI to remember your context, challenge your assumptions, and adapt to the stakes of your specific situation.
-            </p>
-          </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div className="p-8 rounded-2xl" style={{ background: 'var(--bg-elevated)', border: '1px solid var(--border-default)' }}>
-              <Clock className="mb-5" size={24} style={{ color: '#5e6ad2' }} />
-              <h3 className="font-semibold text-[16px] mb-3" style={{ color: 'var(--text-primary)' }}>Decision Threads & Follow-ups</h3>
-              <p className="text-[14px] leading-relaxed" style={{ color: 'var(--text-secondary)' }}>
-                Real decisions evolve over time. Maintain persistent chat threads where the engine automatically tracks your financial runway, constraints, and past verdicts. Ask follow-up questions without re-explaining yourself.
-              </p>
-            </div>
-
-            <div className="p-8 rounded-2xl" style={{ background: 'var(--bg-elevated)', border: '1px solid var(--border-default)' }}>
-              <Shield className="mb-5" size={24} style={{ color: '#e05d5d' }} />
-              <h3 className="font-semibold text-[16px] mb-3" style={{ color: 'var(--text-primary)' }}>Devil's Advocate Mode</h3>
-              <p className="text-[14px] leading-relaxed" style={{ color: 'var(--text-secondary)' }}>
-                Already know what you want to do? The engine detects when you are simply seeking validation and will forcibly construct the strongest possible counter-argument to test your conviction.
-              </p>
-            </div>
-
-            <div className="p-8 rounded-2xl" style={{ background: 'var(--bg-elevated)', border: '1px solid var(--border-default)' }}>
-              <Users className="mb-5" size={24} style={{ color: '#4dac68' }} />
-              <h3 className="font-semibold text-[16px] mb-3" style={{ color: 'var(--text-primary)' }}>Adaptive Tone</h3>
-              <p className="text-[14px] leading-relaxed" style={{ color: 'var(--text-secondary)' }}>
-                Not every problem requires a brutal reality check. The system dynamically adjusts its tone—delivering hard truths from Elon for business pivots, or nuanced wisdom from Naval for life choices.
-              </p>
-            </div>
-          </div>
-        </div>
-      </section>
 
       {/* ─── 5. BUILT FOR BUILDERS ─── */}
       <section className="relative z-10 px-6 lg:px-8 py-24 border-y" style={{ background: 'var(--bg-surface)', borderColor: 'var(--border-subtle)' }}>

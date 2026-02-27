@@ -67,6 +67,13 @@ export default async function DashboardPage() {
         console.error("Dashboard Usage Fetch Error:", e);
     }
 
+    const pendingReviewDecisions = decisions?.filter((d: any) => {
+        const createdDate = new Date(d.created_at);
+        const sevenDaysAgo = new Date();
+        sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+        return createdDate < sevenDaysAgo;
+    }) || [];
+
     return (
         <div className="min-h-screen bg-black text-white p-6 md:p-12">
             <div className="max-w-6xl mx-auto">
@@ -97,26 +104,47 @@ export default async function DashboardPage() {
                     </div>
                 </div>
 
-                {/* Mobile Usage Banner (prominent if low) */}
-                {!usageData.isPaid && usageData.remaining <= 2 && (
-                    <div className={`md:hidden mb-8 p-4 rounded-xl border flex items-center justify-between ${usageData.remaining === 0
-                            ? 'bg-red-500/10 border-red-500/30'
-                            : 'bg-orange-500/10 border-orange-500/30'
-                        }`}>
-                        <div>
-                            <div className={`font-bold text-sm ${usageData.remaining === 0 ? 'text-red-400' : 'text-orange-400'}`}>
-                                {usageData.remaining === 0 ? 'Free limit reached' : `Only ${usageData.remaining} free left`}
+                {/* Accountability Check-In (Experimental Hook) */}
+                {pendingReviewDecisions.length > 0 && (
+                    <div className="mb-12 animate-pulse-slow">
+                        <div className="bg-gradient-to-r from-amber-500/20 via-black to-black border-2 border-amber-500/30 rounded-2xl p-6 md:p-8 relative overflow-hidden">
+                            <div className="absolute top-0 right-0 p-8 opacity-10 rotate-12"><Target size={120} /></div>
+
+                            <div className="flex flex-col md:flex-row items-center justify-between gap-6 relative z-10">
+                                <div>
+                                    <div className="flex items-center gap-2 text-amber-500 font-bold text-xs uppercase tracking-widest mb-2">
+                                        <AlertTriangle size={14} /> Weekly Reality Check
+                                    </div>
+                                    <h2 className="text-2xl font-bold text-white mb-2">You have {pendingReviewDecisions.length} decisions requiring an update.</h2>
+                                    <p className="text-zinc-400 text-sm max-w-xl">
+                                        It's been over 7 days since you made these choices. Did you execute? Returning to your decisions increases execution success by 40%.
+                                    </p>
+                                </div>
+                                <div className="flex flex-col gap-3 w-full md:w-auto">
+                                    <Link
+                                        href={`/analyze/${pendingReviewDecisions[0].id}`}
+                                        className="bg-amber-500 text-black hover:bg-amber-400 px-6 py-3 rounded-lg font-bold transition-all text-center flex items-center justify-center gap-2 shadow-[0_0_20px_rgba(245,158,11,0.2)]"
+                                    >
+                                        Update Latest: {pendingReviewDecisions[0].title.substring(0, 20)}...
+                                    </Link>
+                                    <div className="text-[10px] text-zinc-600 text-center uppercase tracking-tighter">
+                                        Accountability Loop Active
+                                    </div>
+                                </div>
                             </div>
-                            <div className={`text-xs mt-1 ${usageData.remaining === 0 ? 'text-red-400/70' : 'text-orange-400/70'}`}>
-                                Upgrade for unlimited analysis
+
+                            <div className="mt-6 pt-6 border-t border-white/5 flex flex-wrap gap-4">
+                                {pendingReviewDecisions.slice(0, 3).map((d: any) => (
+                                    <Link
+                                        key={d.id}
+                                        href={`/analyze/${d.id}`}
+                                        className="text-[11px] text-zinc-500 hover:text-amber-400 transition-colors flex items-center gap-1 bg-white/5 px-2 py-1 rounded"
+                                    >
+                                        <Clock size={10} /> {d.title}
+                                    </Link>
+                                ))}
                             </div>
                         </div>
-                        <Link href="/analyze/new" className={`px-4 py-2 rounded-lg text-xs font-bold transition-colors ${usageData.remaining === 0
-                                ? 'bg-red-500 text-white hover:bg-red-600'
-                                : 'bg-orange-500 text-white hover:bg-orange-600'
-                            }`}>
-                            Upgrade
-                        </Link>
                     </div>
                 )}
 
@@ -142,6 +170,6 @@ export default async function DashboardPage() {
                 </div>
 
             </div>
-        </div>
+        </div >
     );
 }
