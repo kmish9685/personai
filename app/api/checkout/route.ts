@@ -22,12 +22,21 @@ export async function GET(request: NextRequest) {
 
     try {
         console.log("Creating checkout for product:", priceId, "user:", userId);
+
+        // Grab the affiliate cookie if it exists
+        const affiliateId = request.cookies.get('persona_affiliate_id')?.value;
+        const metadata: Record<string, string> = {
+            clerk_user_id: userId
+        };
+
+        if (affiliateId) {
+            metadata.affiliate_id = affiliateId;
+        }
+
         const result = await polar.checkouts.create({
             products: [priceId],
             successUrl: `${request.nextUrl.origin}/dashboard?upgrade=success`,
-            metadata: {
-                clerk_user_id: userId
-            }
+            metadata: metadata
         });
 
         return NextResponse.redirect(result.url);

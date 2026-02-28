@@ -51,6 +51,8 @@ export const metadata: Metadata = {
 
 import { AuthProvider } from '@/src/contexts/AuthContext';
 import { ClerkProvider } from "@clerk/nextjs";
+import { Suspense } from "react";
+import { AffiliateTracker } from "@/components/AffiliateTracker";
 
 export default function RootLayout({
   children,
@@ -103,6 +105,10 @@ export default function RootLayout({
               gtag('config', 'G-DGFC27782F');
             `}
           </Script>
+
+          <Suspense fallback={null}>
+            <AffiliateTracker />
+          </Suspense>
 
           <AuthProvider>
             {children}
