@@ -27,7 +27,6 @@ origins = [
     "https://personai.fun",
     "https://www.personai.fun",
     "https://persona-ai-dually-vercel.app",  # Vercel auto-generated domain
-    "*"  # Remove this in production for security
 ]
 
 app.add_middleware(
