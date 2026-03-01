@@ -11,14 +11,14 @@ export default function BoardSection() {
                 <div className="text-center mb-14">
                     <div className="inline-flex items-center gap-2 px-2.5 py-1 rounded-full mb-6" style={{ background: 'rgba(94,106,210,0.15)', border: '1px solid rgba(94,106,210,0.2)' }}>
                         <Brain size={12} style={{ color: '#5e6ad2' }} />
-                        <span className="text-[11px] font-medium uppercase tracking-[0.06em]" style={{ color: '#5e6ad2' }}>The Team</span>
+                        <span className="text-[11px] font-medium uppercase tracking-[0.06em]" style={{ color: '#5e6ad2' }}>Decision Frameworks</span>
                     </div>
                     <h2 className="text-3xl sm:text-[44px] font-semibold mb-4" style={{ letterSpacing: '-0.03em' }}>
                         Your personal{' '}
-                        <span className="text-gradient">board of directors.</span>
+                        <span className="text-gradient">decision frameworks.</span>
                     </h2>
                     <p className="text-[15px] max-w-xl mx-auto leading-relaxed" style={{ color: 'var(--text-secondary)' }}>
-                        Don't just chat. Consult. Each persona is engineered to attack your problem from a specific, high-leverage angle.
+                        Don't just chat. Decide. Each framework is engineered to attack your problem from a specific, high-leverage angle.
                     </p>
                 </div>
 
@@ -53,7 +53,7 @@ export default function BoardSection() {
 
                 <div className="mt-12 text-center">
                     <Link href="/personas" className="inline-flex items-center gap-2 text-[13px] font-medium transition-colors hover:text-white group" style={{ color: 'var(--text-secondary)' }}>
-                        Meet the full board <ArrowRight size={13} className="group-hover:translate-x-0.5 transition-transform" />
+                        Explore all frameworks <ArrowRight size={13} className="group-hover:translate-x-0.5 transition-transform" />
                     </Link>
                 </div>
             </div>

@@ -273,7 +273,7 @@ export function Chat() {
                         </button>
 
                         {/* Persona Switcher */}
-                        <PersonaSwitcher currentPersona={personaId} />
+                        <PersonaSwitcher currentFramework={personaId} />
 
                         {/* Message Count */}
                         <span className={clsx("text-xs font-mono hidden sm:block", remaining === 0 ? "text-red-500" : "text-gray-500")}>

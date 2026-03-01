@@ -1,7 +1,7 @@
 -- Run this in your Supabase SQL Editor
 
 -- 1. USERS Table (Tracks limits)
-create table users (
+create table if not exists users (
   ip_address text primary key,
   plan text default 'free', -- 'free' or 'pro'
   msg_count int default 0,
@@ -10,7 +10,7 @@ create table users (
 );
 
 -- 2. TRANSACTIONS Table (Tracks money)
-create table transactions (
+create table if not exists transactions (
   id uuid primary key default gen_random_uuid(),
   user_ip text references users(ip_address),
   razorpay_order_id text,
@@ -21,7 +21,7 @@ create table transactions (
 );
 
 -- 3. GLOBAL STATS (Safety Cap)
-create table global_stats (
+create table if not exists global_stats (
   date date primary key default current_date,
   total_requests int default 0
 );
@@ -54,6 +54,9 @@ ALTER TABLE users ADD COLUMN IF NOT EXISTS email_verified BOOLEAN DEFAULT FALSE;
 ALTER TABLE users ADD COLUMN IF NOT EXISTS updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW();
 
 -- 6. Enforce: Must have identifier (IP OR Email)
+-- Clean up invalid rows first to prevent constraint violations
+DELETE FROM users WHERE ip_address IS NULL AND (email IS NULL OR email = '');
+
 ALTER TABLE users DROP CONSTRAINT IF EXISTS user_identifier_check;
 ALTER TABLE users ADD CONSTRAINT user_identifier_check 
     CHECK (ip_address IS NOT NULL OR email IS NOT NULL);
@@ -74,6 +77,18 @@ CREATE TABLE IF NOT EXISTS contact_submissions (
 );
 
 -- Index for querying by date
+-- Note: Re-creating this table with correct column names just in case it was created incorrectly before
+DROP TABLE IF EXISTS contact_submissions;
+CREATE TABLE contact_submissions (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  name TEXT NOT NULL,
+  email TEXT NOT NULL,
+  message TEXT NOT NULL,
+  submitted_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+  ip_address TEXT,
+  user_agent TEXT
+);
+
 CREATE INDEX IF NOT EXISTS idx_contact_submissions_date ON contact_submissions(submitted_at DESC);
 
 -- Enable RLS (optional - backend uses service role)

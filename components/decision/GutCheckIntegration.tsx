@@ -1,7 +1,6 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { createClient } from '@supabase/supabase-js';
 import GutCheckModal, { GutReaction } from '@/components/GutCheckModal';
 
 interface GutCheckIntegrationProps {
@@ -30,21 +29,15 @@ export default function GutCheckIntegration({ decisionId, verdict, existingReact
         setShowModal(false);
 
         try {
-            const supabase = createClient(
-                process.env.NEXT_PUBLIC_SUPABASE_URL!,
-                process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-            );
+            const res = await fetch('/api/gut-check', {
+                method: 'PATCH',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ decisionId, reaction })
+            });
 
-            const { error } = await supabase
-                .from('decisions')
-                .update({
-                    gut_reaction: reaction,
-                    gut_vs_ai: reaction.alignment
-                })
-                .eq('id', decisionId);
-
-            if (error) {
-                console.error('Error saving gut reaction:', error);
+            if (!res.ok) {
+                const data = await res.json();
+                console.error('Error saving gut reaction:', data.error);
             }
         } catch (err) {
             console.error('Failed to save gut reaction:', err);

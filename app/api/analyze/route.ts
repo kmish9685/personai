@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
-import { currentUser } from '@clerk/nextjs/server';
+import { auth, currentUser } from '@clerk/nextjs/server';
 
 const GROQ_API_KEY = process.env.GROQ_API_KEY;
 const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL;
@@ -15,26 +15,45 @@ if (!SUPABASE_URL || !SUPABASE_SERVICE_KEY) {
 
 const supabase = createClient(SUPABASE_URL!, SUPABASE_SERVICE_KEY!);
 
-const SYSTEM_PROMPT = `
+function getSystemPrompt(mode: string = 'challenger') {
+  const isSupportive = mode === 'supportive';
+
+  return `
 You are the world's most advanced DECISION ENGINE for founders. 
 Your goal is DECISION COMPRESSION: Reduce 2 weeks of overthinking into 5 minutes of clarity.
 
 INPUT: You will receive structured data about a founder's decision (constraints, options, blindspots).
 
 OUTPUT: You must generate a strictly formatted JSON response that explicitly analyzes consequences, validates assumptions, and provides clear "Kill Signals".
+Crucially, you must classify the decision as either Type 1 (Irreversible) or Type 2 (Reversible).
 
-ROLE: Synthesize the wisdom of 6 personas (Elon Musk, Naval Ravikant, Paul Graham, Jeff Bezos, Steve Jobs, Peter Thiel) into ONE cohesive, hard-hitting analysis. 
+ROLE: Synthesize the wisdom of 6 personas (Elon Musk, Naval Ravikant, Paul Graham, Jeff Bezos, Steve Jobs, Peter Thiel) into ONE cohesive analysis. 
 - Channel Elon for physics/resource constraints.
 - Channel Naval for leverage and long-term games.
 - Channel PG for user-centricity and "default alive".
 - Channel Thiel for contrarian truths and monopoly.
+
+TONE & BEHAVIORAL MODE:
+- Write like a brilliant human companion, not a machine.
+- Start with empathy. Acknowledge the weight or difficulty of their situation.
+- Use conversational prose ("Look, here is the reality...", "I hear you, but...").
+- NO BULLET POINT SPAM unless absolutely necessary. Use narrative paragraphs.
+- Abandon formal corporate speak. Use analogies only if they explain complex systems simply.
+
+${isSupportive
+      ? "- You are in 'Validation' mode. Be a supportive partner. The user likely knows what they want but needs confidence and validation. Be encouraging while pointing out blind spots gently."
+      : "- You are in 'Devil's Advocate' mode. Be BRUTALLY HONEST. Challenge the user's assumptions aggressively. If they have a fatal flaw, tell them bluntly. Play the role of a critical skeptic."
+    }
 
 JSON OUTPUT STRUCTURE:
 {
   "recommendation": {
     "option_id": "Option A/B/C match",
     "verdict": "Clear concise verdict",
-    "reasoning": "Why this wins based on constraints",
+    "companion_intro": "A 2-3 sentence conversational, empathetic opening that reads like a human advisor sitting across the table.",
+    "reasoning": "Conversational narrative explaining why this wins based on constraints. Avoid robotic lists.",
+    "decision_type": "Type 1 (Irreversible) OR Type 2 (Reversible)",
+    "reversibility_strategy": "If Type 1, provide a 'Pre-mortem' to mitigate catastrophic failure. If Type 2, suggest 'Test windows' or 'Undo paths' to safely prototype the decision.",
     "conviction_score": 0-100,
     "certainty_score": 0-100,
     "conditional_factors": ["If X happens, then verdict changes to Y", "Only proceed if Z is true"]
@@ -59,12 +78,17 @@ JSON OUTPUT STRUCTURE:
 }
 
 RULES:
-- Be BRUTALLY HONEST. If they have 1 month runway, tell them they are dead if they don't sell.
-- No fluff. No "it depends".
-- Use the provided constraints strictly (e.g. if Burn > Runway, prioritize survival).
+- Talk like a human companion. Do not use words like "Furthermore", "Thus", or "In conclusion".
+- Be empathetic to the context, then be objective in your analysis.
+- Explicitly identify the decision as Type 1 or Type 2, and adapt the strategy accordingly.
+- No fluff. No "it depends". Use the provided constraints strictly.
 `;
+}
 
 export async function POST(req: NextRequest) {
+  const { userId } = await auth();
+  if (!userId) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+
   const user = await currentUser();
   if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
@@ -74,19 +98,61 @@ export async function POST(req: NextRequest) {
 
   try {
     const body = await req.json();
-    const { title, context, options, constraints, decisionType, values_profile, five_year_viz, viz_clarity_achieved } = body;
+    const { title, context, options, constraints, decisionType, values_profile, five_year_viz, viz_clarity_achieved, personaMode, thread_id } = body;
 
     // Validate required fields
     if (!title && !context) {
       return NextResponse.json({ error: "Missing required fields: title or context" }, { status: 400 });
     }
 
+    // --- SITUATION AWARENESS & THREADING ---
+    let situationalContext = "";
+
+    // 1. Threading: Fetch continuous conversation context
+    if (thread_id) {
+      const { data: previousDecision } = await supabase
+        .from('decisions')
+        .select('title, input_data, analysis_result')
+        .eq('id', thread_id)
+        .single();
+
+      if (previousDecision) {
+        situationalContext += `
+PREVIOUS DECISION THREAD (${previousDecision.title}):
+The user is continuing a previous thought process. Here is what they decided before:
+- Previous Context: ${JSON.stringify(previousDecision.input_data?.context || '')}
+- Previous Verdict: ${previousDecision.analysis_result?.recommendation?.verdict || 'None'}
+`;
+      }
+    }
+
+    // 2. Situation Awareness: Fetch last 3 decisions to understand baseline
+    if (user.id) {
+      const { data: pastDecisions } = await supabase
+        .from('decisions')
+        .select('title, decision_type, input_data')
+        .eq('user_id', user.id)
+        .order('created_at', { ascending: false })
+        .limit(3);
+
+      if (pastDecisions && pastDecisions.length > 0) {
+        situationalContext += `
+USER BEHAVIORAL BASELINE (Situation Awareness):
+The user has recently been thinking about:
+${pastDecisions.map(d => `- ${d.title} (${d.decision_type})`).join('\n')}
+Use this to understand their general situation (finances, risk tolerance, habits) without them needing to repeat it.
+`;
+      }
+    }
+
     // Construct the prompt (flexible for both old and new formats)
     let prompt = `
 DECISION: ${title || decisionType || 'General Decision'}
 
-FULL CONTEXT:
+FULL CONTEXT (Current Input):
 ${context || 'No context provided'}
+
+${situationalContext}
 
 OPTIONS BEING CONSIDERED:
 ${Array.isArray(options) && options.length > 0
@@ -136,7 +202,7 @@ Analyze this now. Return ONLY JSON.
       body: JSON.stringify({
         model: "llama-3.3-70b-versatile",
         messages: [
-          { role: "system", content: SYSTEM_PROMPT },
+          { role: "system", content: getSystemPrompt(personaMode || 'challenger') },
           { role: "user", content: prompt }
         ],
         temperature: 0.7,
@@ -199,7 +265,7 @@ Analyze this now. Return ONLY JSON.
       .select('*', { count: 'exact', head: true })
       .eq('user_id', user.id);
 
-    const FREE_LIMIT = 2;
+    const FREE_LIMIT = 5;
 
     if (!isPaidUser && (analysisCount || 0) >= FREE_LIMIT) {
       return NextResponse.json({

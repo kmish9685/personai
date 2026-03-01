@@ -58,7 +58,7 @@ THINKING FROM FIRST PRINCIPLES:
 [Step 3: Determine the path of least entropy]
 [ANSWER]
 [Your direct, 3-sentence verdict here]
-`
+` + STRESS_TEST_APPENDIX
     },
     naval: {
         name: "Naval Ravikant",
@@ -88,7 +88,7 @@ THINKING FROM LEVERAGE:
 [Step 3: Apply the specific knowledge filter]
 [ANSWER]
 [Your direct, 3-sentence verdict here]
-`
+` + STRESS_TEST_APPENDIX
     },
     paul: {
         name: "Paul Graham",
@@ -118,7 +118,7 @@ THINKING FROM YC WISDOM:
 [Step 3: Define the immediate "do things that don't scale" action]
 [ANSWER]
 [Your direct, 3-sentence verdict here]
-`
+` + STRESS_TEST_APPENDIX
     },
     bezos: {
         name: "Jeff Bezos",
@@ -148,7 +148,7 @@ THINKING BACKWARDS FROM CUSTOMER:
 [Step 3: Define the mechanism to ensure quality]
 [ANSWER]
 [Your direct, 3-sentence verdict here]
-`
+` + STRESS_TEST_APPENDIX
     },
     jobs: {
         name: "Steve Jobs",
@@ -178,7 +178,7 @@ THINKING FROM DESIGN & SIMPLICITY:
 [Step 3: Focus on the one thing that matters]
 [ANSWER]
 [Your direct, 3-sentence verdict here]
-`
+` + STRESS_TEST_APPENDIX
     },
     thiel: {
         name: "Peter Thiel",
@@ -209,11 +209,27 @@ THINKING FROM ZERO TO ONE:
 [ANSWER]
 [Your direct, 3-sentence verdict here]
 ` + STRESS_TEST_APPENDIX
-    }
+    },
+
+    // --- Framework ID Aliases (new IDs map to same prompts) ---
+    inversion: { name: "Inversion", system_prompt: '' },
+    leverage: { name: "Leverage Analysis", system_prompt: '' },
+    user_truth: { name: "User Truth", system_prompt: '' },
+    customer_back: { name: "Customer-Back", system_prompt: '' },
+    simplicity: { name: "Simplicity Filter", system_prompt: '' },
+    contrarian: { name: "Contrarian Check", system_prompt: '' },
 };
 
+// Wire framework aliases to their persona prompts (after object is defined)
+PERSONAS.inversion.system_prompt = PERSONAS.elon.system_prompt;
+PERSONAS.leverage.system_prompt = PERSONAS.naval.system_prompt;
+PERSONAS.user_truth.system_prompt = PERSONAS.paul.system_prompt;
+PERSONAS.customer_back.system_prompt = PERSONAS.bezos.system_prompt;
+PERSONAS.simplicity.system_prompt = PERSONAS.jobs.system_prompt;
+PERSONAS.contrarian.system_prompt = PERSONAS.thiel.system_prompt;
+
 const PERSONA = {
-    name: "Elon Musk (Unfiltered)",
+    name: "Decision Framework Engine",
     max_words: 150,
     forbidden_phrases: [
         "as an AI", "I'm an AI", "I cannot have personal opinions",
@@ -221,7 +237,7 @@ const PERSONA = {
         "foster", "delve", "tapestry", "I hope this helps",
         "Is there anything else"
     ],
-    system_prompt: PERSONAS.elon.system_prompt
+    system_prompt: PERSONAS.inversion.system_prompt
 };
 
 // --- Helpers ---
@@ -358,6 +374,7 @@ async function incrementGlobalStats() {
 
 // Helper to parse response into answer and reasoning
 // Updated to handle Stress-Test sections
+// FIXED: Handles both [TAG] and TAG (without brackets) since LLMs are inconsistent
 function parseResponse(text: string): {
     response: string;
     reasoning?: string;
@@ -368,24 +385,41 @@ function parseResponse(text: string): {
 } {
     const output: any = { response: text.trim() };
 
-    // Updated Regex: Capture content until the next known tag or end of string.
-    // Handles markdown (e.g., **[TAG]**), whitespace, and nested [] brackets inside content.
-    const extract = (tag: string) => {
-        const regex = new RegExp(`\\[${tag}\\]([\\s\\S]*?)(?=\\[(?:ANSWER|REASONING|ASSUMPTIONS|MISSING_DATA|PRE_MORTEM|BIAS_CHECK)\\]|$)`, 'i');
-        const match = text.match(regex);
-        return match ? match[1].trim() : undefined;
+    const ALL_TAGS = ['ANSWER', 'REASONING', 'ASSUMPTIONS', 'MISSING_DATA', 'PRE_MORTEM', 'BIAS_CHECK'];
+    const tagsPattern = ALL_TAGS.join('|');
+
+    // Extract content for a given tag. Handles:
+    // - [TAG] content  (bracketed)
+    // - TAG content     (unbracketed, but only at word boundary)
+    // - **[TAG]** content (markdown bold)
+    const extract = (tag: string): string | undefined => {
+        // Try bracketed first: [TAG]
+        const bracketRegex = new RegExp(`\\[${tag}\\][:\\s]*([\\s\\S]*?)(?=\\[(?:${tagsPattern})\\]|(?:^|\\n)\\s*(?:${tagsPattern})(?:\\s|:|$)|$)`, 'im');
+        let match = text.match(bracketRegex);
+        if (match && match[1].trim()) return match[1].trim();
+
+        // Try unbracketed: TAG at start of line or after newline
+        const unbracketRegex = new RegExp(`(?:^|\\n)\\s*${tag}[:\\s]+([\\s\\S]*?)(?=\\[(?:${tagsPattern})\\]|(?:^|\\n)\\s*(?:${tagsPattern})(?:\\s|:|$)|$)`, 'im');
+        match = text.match(unbracketRegex);
+        if (match && match[1].trim()) return match[1].trim();
+
+        return undefined;
     };
 
     output.reasoning = extract('REASONING');
-    output.response = extract('ANSWER') || text.trim();
-    // If text starts with ANSWER tag, extract explicitly. If not, use full text as fallback.
-    // However, if the text contains OTHER tags later, we must only take the part BEFORE them.
-    if (!output.response && !text.includes('[ANSWER]')) {
-        // Fallback: take everything until the first known tag
-        const firstTagIndex = text.search(/\[(?:REASONING|ASSUMPTIONS|MISSING_DATA|PRE_MORTEM|BIAS_CHECK)\]/);
-        if (firstTagIndex !== -1) {
-            output.response = text.substring(0, firstTagIndex).trim();
+    output.response = extract('ANSWER') || '';
+
+    // Fallback: if no ANSWER tag found at all, use the full text minus any tagged sections
+    if (!output.response) {
+        // Take everything that's NOT inside a known tag
+        let fallback = text;
+        for (const tag of ALL_TAGS) {
+            // Remove [TAG] content blocks  
+            fallback = fallback.replace(new RegExp(`\\[${tag}\\][:\\s]*[\\s\\S]*?(?=\\[(?:${tagsPattern})\\]|(?:^|\\n)\\s*(?:${tagsPattern})(?:\\s|:|$)|$)`, 'gim'), '');
+            // Remove unbracketed TAG content blocks
+            fallback = fallback.replace(new RegExp(`(?:^|\\n)\\s*${tag}[:\\s]+[\\s\\S]*?(?=\\[(?:${tagsPattern})\\]|(?:^|\\n)\\s*(?:${tagsPattern})(?:\\s|:|$)|$)`, 'gim'), '');
         }
+        output.response = fallback.trim() || text.trim();
     }
 
     output.assumptions = extract('ASSUMPTIONS');
@@ -393,9 +427,9 @@ function parseResponse(text: string): {
     output.preMortem = extract('PRE_MORTEM');
     output.biasCheck = extract('BIAS_CHECK');
 
-    // Clean up response if it contains the raw tags (legacy fallback)
-    if (output.response.includes('[REASONING]')) {
-        output.response = output.response.split('[REASONING]')[0].trim();
+    // Clean up: remove raw tags from response if they leaked through
+    for (const tag of ALL_TAGS) {
+        output.response = output.response.replace(new RegExp(`\\[?${tag}\\]?[:\\s]*`, 'gi'), '').trim();
     }
 
     return output;
@@ -433,7 +467,7 @@ async function callGroqForPersona(personaId: string, message: string, history: a
             model: "llama-3.3-70b-versatile",
             messages: groqMessages,
             temperature: 0.9,
-            max_tokens: 500, // Increased for reasoning
+            max_tokens: 1000,
             top_p: 0.95
         })
     });
@@ -532,7 +566,7 @@ export async function POST(req: NextRequest) {
             // Multi-persona mode: Call all 6 personas in parallel
             console.log(`🚀 Multi-persona mode: Calling all 6 personas`);
 
-            const allPersonaIds = ['elon', 'naval', 'paul', 'bezos', 'jobs', 'thiel'];
+            const allPersonaIds = ['inversion', 'leverage', 'user_truth', 'customer_back', 'simplicity', 'contrarian'];
 
             // CRITICAL FIX: Do NOT pass history to multi-persona mode.
             // 1. Prevents "stiffness" or "generic" responses where models try to match the previous assistant's tone.
@@ -559,8 +593,8 @@ export async function POST(req: NextRequest) {
             });
         } else {
             // Single persona mode: Use the same helper to get reasoning
-            const validPersona = PERSONAS[persona] ? persona : 'elon';
-            console.log(`🚀 Single mode: Calling persona ${validPersona}`);
+            const validPersona = PERSONAS[persona] ? persona : 'inversion';
+            console.log(`🚀 Single mode: Calling framework ${validPersona}`);
 
             const result = await callGroqForPersona(validPersona, currentMessageContent, history);
             console.log("✅ Groq Response received.");

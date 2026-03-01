@@ -3,20 +3,25 @@
 import Link from 'next/link';
 import ChatDemoSection from '@/components/landing/ChatDemoSection';
 import { Suspense, useState, useEffect } from 'react';
-import { ArrowRight, Check, X, Target, Brain, ShieldAlert, Zap, BarChart3, HelpCircle, ChevronLeft, ChevronRight, Sparkles, Clock, Users, TrendingUp, Eye, Shield } from 'lucide-react';
-import { SignedIn, SignedOut, UserButton } from '@clerk/nextjs';
+import { ArrowRight, Check, X, Target, Brain, ShieldAlert, Zap, BarChart3, HelpCircle, ChevronLeft, ChevronRight, Sparkles, Clock, Users, TrendingUp, Eye, Shield, AlertTriangle } from 'lucide-react';
+import { SignedIn, SignedOut, UserButton, useUser } from '@clerk/nextjs';
 import BoardSection from '@/components/landing/BoardSection';
 import ComparisonSection from '@/components/landing/ComparisonSection';
 import TestimonialSection from '@/components/landing/TestimonialSection';
+import { Paywall } from '@/components/Paywall';
+import { useRouter } from 'next/navigation';
 
 function LandingPageContent() {
   const [currentFrame, setCurrentFrame] = useState(0);
-  const [currency, setCurrency] = useState<'INR' | 'USD'>('INR');
+  const [currency, setCurrency] = useState<'INR' | 'USD'>('USD');
   const [billingCycle, setBillingCycle] = useState<'monthly' | 'annual'>('monthly');
+  const [showPaywall, setShowPaywall] = useState(false);
+  const { user } = useUser();
+  const router = useRouter();
 
   const pricing = {
-    INR: { monthly: 149, annual: 999, symbol: "₹" },
-    USD: { monthly: 3.25, annual: 39, symbol: "$" }
+    INR: { monthly: 149, annual: 83, symbol: "₹", fullAnnual: 999 },
+    USD: { monthly: 4.99, annual: 3.25, symbol: "$", fullAnnual: 39 }
   };
 
   const frames = [
@@ -31,8 +36,8 @@ function LandingPageContent() {
       title: "The Solution",
       subtitle: "Structured analysis. Binary verdict.",
       icon: <Check className="text-[#4dac68]" size={20} />,
-      tag: "Persona Engine",
-      content: "We enforce constraints. 6 persona perspectives synthesized into a single verdict, a conviction score, and clear kill signals. Decision compression."
+      tag: "Decision Frameworks",
+      content: "We enforce constraints. Inversion, pre-mortem, and opportunity cost frameworks synthesized into a single verdict, a conviction score, and clear kill signals. Decision compression."
     },
     {
       title: "The Result",
@@ -67,7 +72,7 @@ function LandingPageContent() {
 
           <nav className="hidden md:flex items-center gap-1 flex-1">
             <Link href="#pricing" className="px-2.5 py-1 text-[13px] rounded transition-colors hover:text-white" style={{ color: 'var(--text-secondary)' }}>Pricing</Link>
-            <Link href="/personas" className="px-2.5 py-1 text-[13px] rounded transition-colors hover:text-white" style={{ color: 'var(--text-secondary)' }}>Advisors</Link>
+            <Link href="/personas" className="px-2.5 py-1 text-[13px] rounded transition-colors hover:text-white" style={{ color: 'var(--text-secondary)' }}>Frameworks</Link>
           </nav>
 
           <div className="flex items-center gap-2">
@@ -124,7 +129,7 @@ function LandingPageContent() {
               Get started <ArrowRight size={14} />
             </Link>
             <Link href="/personas" className="h-10 px-5 rounded-lg font-medium text-[14px] transition-all flex items-center gap-2 hover:text-white" style={{ background: 'transparent', border: '1px solid var(--border-default)', color: 'var(--text-secondary)' }}>
-              Try Advisors
+              Try Frameworks
             </Link>
           </div>
 
@@ -192,6 +197,48 @@ function LandingPageContent() {
       {/* ─── BOARDROOM ─── */}
       <BoardSection />
 
+      {/* ─── NEW PRIORITY: STRATEGIC COMPANION (Addictive Loops) ─── */}
+      <section className="relative z-10 px-6 lg:px-8 py-24 border-y animate-fade-up" style={{ background: 'var(--bg-surface)', borderColor: 'var(--border-subtle)', animationDelay: '0.5s' }}>
+        <div className="max-w-5xl mx-auto">
+          <div className="text-center mb-14">
+            <div className="inline-flex items-center gap-2 px-2.5 py-1 rounded-full mb-6" style={{ background: 'rgba(94,106,210,0.1)', border: '1px solid rgba(94,106,210,0.2)' }}>
+              <Sparkles size={14} style={{ color: '#5e6ad2' }} />
+              <span className="text-[12px] font-semibold uppercase tracking-[0.06em]" style={{ color: '#5e6ad2' }}>Engineering-Grade Accountability</span>
+            </div>
+            <h2 className="text-3xl sm:text-[44px] font-semibold mb-3" style={{ letterSpacing: '-0.03em' }}>Your strategic companion.</h2>
+            <p className="text-[15px] max-w-2xl mx-auto leading-relaxed" style={{ color: 'var(--text-secondary)' }}>
+              Decisions aren't made in a vacuum. We built Persona AI to remember your context, challenge your assumptions, and pull you back into execution mode.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="p-8 rounded-2xl group hover:border-[#5e6ad2]/50 transition-all" style={{ background: 'var(--bg-elevated)', border: '1px solid var(--border-default)' }}>
+              <Clock className="mb-5 group-hover:scale-110 transition-transform" size={24} style={{ color: '#5e6ad2' }} />
+              <h3 className="font-semibold text-[16px] mb-3" style={{ color: 'var(--text-primary)' }}>Decision Threads & Memory</h3>
+              <p className="text-[14px] leading-relaxed" style={{ color: 'var(--text-secondary)' }}>
+                Ask follow-up questions without re-explaining the context. The engine invisibly retains your stakes, runway, and constraints across every debate.
+              </p>
+            </div>
+
+            <div className="p-8 rounded-2xl group hover:border-amber-500/50 transition-all" style={{ background: 'var(--bg-elevated)', border: '1px solid var(--border-default)' }}>
+              <AlertTriangle className="mb-5 group-hover:scale-110 transition-transform" size={24} style={{ color: '#f2b84b' }} />
+              <h3 className="font-semibold text-[16px] mb-3" style={{ color: 'var(--text-primary)' }}>Accountability Loops</h3>
+              <p className="text-[14px] leading-relaxed" style={{ color: 'var(--text-secondary)' }}>
+                Most decisions die due to lack of action. Our dashboard flags stale decisions and prompts you for a reality check 7 days later to ensure you executed.
+              </p>
+            </div>
+
+            <div className="p-8 rounded-2xl group hover:border-[#4dac68]/50 transition-all" style={{ background: 'var(--bg-elevated)', border: '1px solid var(--border-default)' }}>
+              <Zap className="mb-5 group-hover:scale-110 transition-transform" size={24} style={{ color: '#4dac68' }} />
+              <h3 className="font-semibold text-[16px] mb-3" style={{ color: 'var(--text-primary)' }}>Instant Context-Prompts</h3>
+              <p className="text-[14px] leading-relaxed" style={{ color: 'var(--text-secondary)' }}>
+                Don't know what to ask? The AI generates one-click contextual follow-ups like "What's my biggest blindspot?" or "Debate me: why should I wait?"
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* ─── 2. NOT ANOTHER CHATBOT — 1px gap grid ─── */}
       <section className="relative z-10 px-6 lg:px-8 py-24 border-y" style={{ background: 'var(--bg-surface)', borderColor: 'var(--border-subtle)' }}>
         <div className="max-w-5xl mx-auto">
@@ -212,9 +259,9 @@ function LandingPageContent() {
               </ul>
             </div>
 
-            {/* Persona Chatbots */}
+            {/* Generic AI Copilots */}
             <div className="p-8 opacity-70" style={{ background: 'var(--bg-base)' }}>
-              <h3 className="text-[11px] font-semibold uppercase tracking-[0.06em] mb-6" style={{ color: 'var(--text-secondary)' }}>Persona Chatbots</h3>
+              <h3 className="text-[11px] font-semibold uppercase tracking-[0.06em] mb-6" style={{ color: 'var(--text-secondary)' }}>Generic AI Copilots</h3>
               <ul className="space-y-3 text-[14px]" style={{ color: 'var(--text-secondary)' }}>
                 <li className="flex items-start gap-2"><Check size={14} className="mt-0.5 shrink-0" /> Fun mimicry</li>
                 <li className="flex items-start gap-2"><Check size={14} className="mt-0.5 shrink-0" /> Good for brainstorming</li>
@@ -306,9 +353,9 @@ function LandingPageContent() {
             <p className="text-[15px]" style={{ color: 'var(--text-secondary)' }}>From brain fog to binary verdict in 3 steps.</p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 relative">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-6 relative">
             {/* Connecting line */}
-            <div className="hidden md:block absolute top-[60px] left-[20%] right-[20%] h-px" style={{ background: 'linear-gradient(to right, transparent, rgba(94,106,210,0.2), transparent)' }} />
+            <div className="hidden md:block absolute top-[60px] left-[12%] right-[12%] h-px" style={{ background: 'linear-gradient(to right, transparent, rgba(94,106,210,0.2), transparent)' }} />
 
             {[
               {
@@ -321,7 +368,7 @@ function LandingPageContent() {
               {
                 num: "02",
                 title: "AI computes your decision",
-                desc: "6 mental models analyze constraints, extract options, and stress-test every path. ~30 seconds.",
+                desc: "6 decision frameworks analyze constraints, extract options, and stress-test every path. ~30 seconds.",
                 label: "What happens",
                 items: [
                   { color: '#4dac68', text: 'Constraint analysis' },
@@ -338,6 +385,17 @@ function LandingPageContent() {
                   { key: 'Verdict', value: 'NO (Wait)', color: '#e05d5d' },
                   { key: 'Conviction', value: '87%', color: '#f2b84b' },
                   { key: 'Kill Signal', value: '🔴 Active', color: '#e05d5d' }
+                ]
+              },
+              {
+                num: "04",
+                title: "Follow-up Threads",
+                desc: "Treat the AI like a continuing advisor. Ask follow-up questions without re-explaining the context.",
+                label: "Follow-Up Chat",
+                detail: '"What if I get a bridge loan from my family instead?"',
+                items: [
+                  { color: '#5e6ad2', text: 'Context retained invisibly' },
+                  { color: '#5e6ad2', text: 'Persona adapts instantly' }
                 ]
               }
             ].map((step, i) => (
@@ -383,10 +441,12 @@ function LandingPageContent() {
             <Link href="/analyze/new" className="inline-flex items-center gap-2 h-10 px-5 rounded-lg font-medium text-[14px] text-white transition-all hover:opacity-90" style={{ background: '#5e6ad2' }}>
               Try it free <ArrowRight size={14} />
             </Link>
-            <p className="text-[12px] mt-3" style={{ color: 'var(--text-tertiary)' }}>2 free analyses · No credit card required</p>
+            <p className="text-[12px] mt-3" style={{ color: 'var(--text-tertiary)' }}>5 free analyses · No credit card required</p>
           </div>
         </div>
       </section>
+
+
 
       {/* ─── 5. BUILT FOR BUILDERS ─── */}
       <section className="relative z-10 px-6 lg:px-8 py-24 border-y" style={{ background: 'var(--bg-surface)', borderColor: 'var(--border-subtle)' }}>
@@ -509,21 +569,23 @@ function LandingPageContent() {
                 <div className="flex items-baseline gap-1">
                   <span className="text-xl" style={{ color: 'var(--text-tertiary)' }}>{pricing[currency].symbol}</span>
                   <span className="text-[56px] font-semibold leading-none" style={{ letterSpacing: '-0.04em' }}>{pricing[currency][billingCycle]}</span>
-                  <span className="text-[13px] font-medium ml-1" style={{ color: 'var(--text-tertiary)' }}>/ {billingCycle === 'monthly' ? 'mo' : 'yr'}</span>
+                  <span className="text-[13px] font-medium ml-1" style={{ color: 'var(--text-tertiary)' }}>/ mo</span>
                 </div>
-                {billingCycle === 'annual' && currency === 'INR' && (
-                  <p className="mt-2 text-[13px] font-medium" style={{ color: '#5e6ad2' }}>₹83/mo equivalent — annual launch price</p>
+                {billingCycle === 'annual' && (
+                  <p className="mt-2 text-[13px] font-medium" style={{ color: '#5e6ad2' }}>
+                    {pricing[currency].symbol}{pricing[currency].fullAnnual} billed annually — founding price
+                  </p>
                 )}
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-8">
                 {[
                   'Unlimited Decision Analysis',
-                  'All Founder Personas (6+)',
+                  'All 6 Decision Frameworks',
                   'Binary Verdicts & Kill Signals',
-                  'Advisor Chat Mode',
-                  'Decision History',
-                  'Priority Inference'
+                  'Decision Context Threads',
+                  'Continuous Chat Memory',
+                  'Priority Model Inference'
                 ].map((feature, i) => (
                   <div key={i} className="flex items-center gap-2.5 text-[14px]" style={{ color: 'var(--text-secondary)' }}>
                     <Check size={14} className="shrink-0" style={{ color: '#5e6ad2' }} />
@@ -532,9 +594,19 @@ function LandingPageContent() {
                 ))}
               </div>
 
-              <Link href="/analyze/new" className="block w-full py-3 rounded-md text-center font-medium text-[14px] text-white transition-all hover:opacity-90" style={{ background: '#5e6ad2' }}>
+              <button
+                onClick={() => {
+                  if (!user) {
+                    router.push('/login?redirect_url=' + encodeURIComponent('/#pricing'));
+                  } else {
+                    setShowPaywall(true);
+                  }
+                }}
+                className="block w-full py-3 rounded-md text-center font-medium text-[14px] text-white transition-all hover:opacity-90 cursor-pointer"
+                style={{ background: '#5e6ad2' }}
+              >
                 Gain Absolute Clarity
-              </Link>
+              </button>
 
               <div className="mt-5 flex items-center justify-center gap-5 opacity-20">
                 {['Visa', 'Mastercard', 'Razorpay'].map(p => (
@@ -579,6 +651,16 @@ function LandingPageContent() {
         </div>
       </section>
 
+      {/* ─── 8. ABOUT PERSONA AI (AEO / Semantic Block) ─── */}
+      <section className="relative z-10 px-6 lg:px-8 py-16 border-t" style={{ background: 'var(--bg-base)', borderColor: 'var(--border-subtle)' }}>
+        <div className="max-w-3xl mx-auto text-center opacity-60 hover:opacity-100 transition-opacity">
+          <h2 className="text-[11px] font-semibold uppercase tracking-[0.06em] mb-4" style={{ color: 'var(--text-tertiary)' }}>What is Persona AI?</h2>
+          <p className="text-[13px] leading-relaxed" style={{ color: 'var(--text-secondary)' }}>
+            Persona AI is an AI-powered decision-making application that simulates the strategic thinking frameworks of experts like Elon Musk, Naval Ravikant, and Paul Graham. Unlike generic conversational chatbots (such as ChatGPT) or entertainment-focused AIs (such as Character AI), Persona AI provides entrepreneurs, founders, and professionals with structured frameworks, binary verdicts, and kill signals. It is an intelligent tool designed exclusively to end indecision and enforce clarity through computational decision structuring.
+          </p>
+        </div>
+      </section>
+
       {/* ─── FOOTER ─── */}
       <footer className="py-14 border-t text-center px-6" style={{ background: 'var(--bg-base)', borderColor: 'var(--border-subtle)' }}>
         <div className="max-w-7xl mx-auto flex flex-col items-center gap-5">
@@ -586,16 +668,40 @@ function LandingPageContent() {
             <img src="/logo.png" alt="Persona AI" className="w-6 h-6 rounded-md grayscale opacity-60" />
             <span className="font-semibold text-[14px]" style={{ color: 'var(--text-tertiary)' }}>Persona AI</span>
           </div>
-          <div className="flex gap-4 text-[13px]" style={{ color: 'var(--text-tertiary)' }}>
+          <div className="flex flex-wrap justify-center gap-x-6 gap-y-2 text-[13px]" style={{ color: 'var(--text-tertiary)' }}>
             <Link href="/analyze/new" className="hover:text-white transition-colors">Start</Link>
             <Link href="/dashboard" className="hover:text-white transition-colors">Dashboard</Link>
-            <Link href="/personas" className="hover:text-white transition-colors">Advisors</Link>
+            <Link href="/personas" className="hover:text-white transition-colors">Frameworks</Link>
+            <Link href="/guides" className="hover:text-white transition-colors">Guides</Link>
+          </div>
+          <div className="flex flex-wrap justify-center gap-x-4 gap-y-2 text-[11px] mt-2" style={{ color: 'var(--text-tertiary)', opacity: 0.7 }}>
+            <span>vs ChatGPT</span>
+            <span>·</span>
+            <Link href="/compare/claude" className="hover:text-white transition-colors">vs Claude</Link>
+            <span>·</span>
+            <Link href="/compare/perplexity" className="hover:text-white transition-colors">vs Perplexity</Link>
+            <span>·</span>
+            <Link href="/compare/character-ai" className="hover:text-white transition-colors">vs Character AI</Link>
+            <span>·</span>
+            <Link href="/compare/executive-coaching" className="hover:text-white transition-colors">vs Executive Coaching</Link>
           </div>
           <p className="text-[11px] tracking-[0.06em]" style={{ color: 'var(--text-tertiary)' }}>
-            © 2025 Persona AI. Decision compression for builders.
+            © 2026 Persona AI. Decision compression for builders.
           </p>
         </div>
       </footer>
+
+      {showPaywall && (
+        <Paywall
+          defaultCurrency={currency}
+          defaultBillingCycle={billingCycle}
+          onClose={() => setShowPaywall(false)}
+          onSuccess={() => {
+            setShowPaywall(false);
+            router.push('/dashboard?upgrade=success');
+          }}
+        />
+      )}
     </div>
   );
 }

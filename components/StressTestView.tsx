@@ -23,7 +23,7 @@ export function StressTestView({ assumptions, missingData, preMortem, biasCheck 
                 <div className="bg-red-950/20 border border-red-500/20 rounded-lg p-3 group hover:border-red-500/40 transition-colors">
                     <div className="flex items-center gap-2 mb-2 text-red-500">
                         <AlertTriangle size={16} />
-                        <h4 className="font-semibold text-xs uppercase tracking-wide">Assumption Breaker</h4>
+                        <h4 className="font-semibold text-xs uppercase tracking-wide">What Could Break This</h4>
                     </div>
                     <div className="text-sm text-gray-300 whitespace-pre-wrap leading-relaxed font-mono text-[13px]">
                         {assumptions}
@@ -36,7 +36,7 @@ export function StressTestView({ assumptions, missingData, preMortem, biasCheck 
                 <div className="bg-blue-950/20 border border-blue-500/20 rounded-lg p-3 group hover:border-blue-500/40 transition-colors">
                     <div className="flex items-center gap-2 mb-2 text-blue-500">
                         <Database size={16} />
-                        <h4 className="font-semibold text-xs uppercase tracking-wide">Missing Data</h4>
+                        <h4 className="font-semibold text-xs uppercase tracking-wide">What You Don't Know Yet</h4>
                     </div>
                     <div className="text-sm text-gray-300 whitespace-pre-wrap leading-relaxed font-mono text-[13px]">
                         {missingData}
@@ -49,7 +49,7 @@ export function StressTestView({ assumptions, missingData, preMortem, biasCheck 
                 <div className="bg-purple-950/20 border border-purple-500/20 rounded-lg p-3 group hover:border-purple-500/40 transition-colors">
                     <div className="flex items-center gap-2 mb-2 text-purple-500">
                         <Skull size={16} />
-                        <h4 className="font-semibold text-xs uppercase tracking-wide">Pre-Mortem</h4>
+                        <h4 className="font-semibold text-xs uppercase tracking-wide">How This Fails</h4>
                     </div>
                     <div className="text-sm text-gray-300 whitespace-pre-wrap leading-relaxed font-mono text-[13px]">
                         {preMortem}
@@ -62,7 +62,7 @@ export function StressTestView({ assumptions, missingData, preMortem, biasCheck 
                 <div className="bg-[#1a1b3a]/20 border border-[#5e6ad2]/20 rounded-lg p-3 group hover:border-[#5e6ad2]/40 transition-colors">
                     <div className="flex items-center gap-2 mb-2 text-[#5e6ad2]">
                         <Eye size={16} />
-                        <h4 className="font-semibold text-xs uppercase tracking-wide">Bias Check</h4>
+                        <h4 className="font-semibold text-xs uppercase tracking-wide">Your Blind Spots</h4>
                     </div>
                     <div className="text-sm text-gray-300 whitespace-pre-wrap leading-relaxed font-mono text-[13px]">
                         {biasCheck}

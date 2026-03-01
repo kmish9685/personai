@@ -4,8 +4,9 @@ import { redirect } from 'next/navigation';
 import Link from 'next/link';
 import DecisionStatus from '@/components/decision/DecisionStatus';
 import GutCheckIntegration from '@/components/decision/GutCheckIntegration';
+import { DecisionChat } from '@/components/decision/DecisionChat';
 
-import { ArrowLeft, AlertTriangle, TrendingUp, Skull, CheckCircle } from 'lucide-react';
+import { ArrowLeft, AlertTriangle, TrendingUp, Skull, CheckCircle, Heart } from 'lucide-react';
 
 export default async function AnalysisResultPage(props: { params: Promise<{ id: string }> }) {
     const params = await props.params;
@@ -89,6 +90,40 @@ export default async function AnalysisResultPage(props: { params: Promise<{ id: 
                     <p className="text-zinc-500">Analysis for: <span className="text-white">{decision.title}</span></p>
                 </div>
 
+                {/* Gut Check Results (If Available) */}
+                {decision.gut_reaction && (
+                    <div className={`mb-10 border rounded-2xl p-6 relative overflow-hidden ${decision.gut_reaction.alignment === 'agrees' ? 'bg-green-500/5 border-green-500/20' :
+                        decision.gut_reaction.alignment === 'disagrees' ? 'bg-red-500/5 border-red-500/20' :
+                            'bg-yellow-500/5 border-yellow-500/20'
+                        }`}>
+                        <div className="flex items-center gap-3 mb-2 relative z-10">
+                            <div className={`w-10 h-10 rounded-full flex items-center justify-center ${decision.gut_reaction.alignment === 'agrees' ? 'bg-green-500/20' :
+                                decision.gut_reaction.alignment === 'disagrees' ? 'bg-red-500/20' :
+                                    'bg-yellow-500/20'
+                                }`}>
+                                <Heart size={20} className={
+                                    decision.gut_reaction.alignment === 'agrees' ? 'text-green-500' :
+                                        decision.gut_reaction.alignment === 'disagrees' ? 'text-red-500' :
+                                            'text-yellow-500'
+                                } />
+                            </div>
+                            <div>
+                                <h2 className="text-lg font-bold text-white">Your Gut Reaction</h2>
+                                <p className="text-sm text-zinc-400 capitalize">{decision.gut_reaction.feeling} ({decision.gut_reaction.alignment} with AI)</p>
+                            </div>
+                        </div>
+
+                        <p className={`mt-4 text-sm leading-relaxed relative z-10 ${decision.gut_reaction.alignment === 'agrees' ? 'text-green-200/80' :
+                            decision.gut_reaction.alignment === 'disagrees' ? 'text-red-200/80' :
+                                'text-yellow-200/80'
+                            }`}>
+                            {decision.gut_reaction.alignment === 'agrees' && "Your intuition matches the logical analysis. You should proceed with high confidence."}
+                            {decision.gut_reaction.alignment === 'disagrees' && "Warning: The AI logic points one way, but your gut wants the opposite. Usually, your gut knows best. Re-read the analysis to see if your gut reaction is fear or true intuition."}
+                            {decision.gut_reaction.alignment === 'neutral' && "You're still uncertain. Try the 5-year visualization exercise at the bottom of the page to unlock more clarity."}
+                        </p>
+                    </div>
+                )}
+
                 {/* Kill Signals - PROMOTED TO TOP */}
                 <div className="bg-gradient-to-br from-red-500/10 to-black border-2 border-red-500/40 rounded-2xl p-8 mb-10">
                     <div className="flex items-center gap-3 mb-6">
@@ -126,7 +161,26 @@ export default async function AnalysisResultPage(props: { params: Promise<{ id: 
 
                     <h2 className="text-amber-500 font-bold tracking-widest uppercase text-xs mb-2">Recommendation</h2>
                     <h3 className="text-3xl font-bold text-white mb-4">{recommendation.verdict}</h3>
+
+                    {/* Conversational Intro */}
+                    {recommendation.companion_intro && (
+                        <div className="mb-6 text-xl text-zinc-300 font-light italic border-l-2 border-[#5e6ad2] pl-4">
+                            "{recommendation.companion_intro}"
+                        </div>
+                    )}
+
                     <p className="text-lg text-zinc-300 leading-relaxed mb-6 max-w-3xl">{recommendation.reasoning}</p>
+
+                    {recommendation.decision_type && (
+                        <div className="bg-black/30 border border-white/10 p-5 rounded-xl mb-6 max-w-3xl relative z-10">
+                            <h4 className="text-sm font-bold text-white mb-2 flex items-center gap-2">
+                                ⚖️ Classification: <span className="text-[#5e6ad2]">{recommendation.decision_type}</span>
+                            </h4>
+                            {recommendation.reversibility_strategy && (
+                                <p className="text-zinc-400 text-sm leading-relaxed">{recommendation.reversibility_strategy}</p>
+                            )}
+                        </div>
+                    )}
 
                     <div className="flex flex-col md:flex-row gap-4 mb-6">
                         <div className="flex-1 inline-flex items-center gap-2 bg-black/40 backdrop-blur px-4 py-3 rounded-lg border border-white/5">
@@ -202,7 +256,14 @@ export default async function AnalysisResultPage(props: { params: Promise<{ id: 
                     </p>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <Link
-                            href="/analyze/new"
+                            href={{
+                                pathname: '/analyze/new',
+                                query: {
+                                    step: 'values',
+                                    title: decision.title,
+                                    context: decision.input_data?.context || ''
+                                }
+                            }}
                             className="p-4 bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl text-left transition-all group"
                         >
                             <div className="text-amber-500 text-xs font-bold mb-1 uppercase tracking-widest">Values Check</div>
@@ -211,7 +272,14 @@ export default async function AnalysisResultPage(props: { params: Promise<{ id: 
                             </div>
                         </Link>
                         <Link
-                            href="/analyze/new"
+                            href={{
+                                pathname: '/analyze/new',
+                                query: {
+                                    step: 'viz',
+                                    title: decision.title,
+                                    context: decision.input_data?.context || ''
+                                }
+                            }}
                             className="p-4 bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl text-left transition-all group"
                         >
                             <div className="text-amber-500 text-xs font-bold mb-1 uppercase tracking-widest">5-Year Visualization</div>
@@ -220,6 +288,17 @@ export default async function AnalysisResultPage(props: { params: Promise<{ id: 
                             </div>
                         </Link>
                     </div>
+                </div>
+
+                {/* Follow-up / Decision Thread Chat */}
+                <div className="mb-12">
+                    <DecisionChat
+                        decisionId={decision.id}
+                        title={decision.title}
+                        context={decision.input_data?.context || 'No specific context provided.'}
+                        verdict={recommendation.verdict}
+                        initialPersona={decision.input_data?.personaMode || 'elon'}
+                    />
                 </div>
             </div>
         </div>

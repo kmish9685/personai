@@ -10,24 +10,22 @@ interface ThinkingCardProps {
     isExpanded?: boolean;
 }
 
-export function ThinkingCard({ content, personaId, isExpanded = true }: ThinkingCardProps) {
+export function ThinkingCard({ content, personaId, isExpanded = false }: ThinkingCardProps) {
     const [expanded, setExpanded] = useState(isExpanded);
     const persona = getPersonaById(personaId);
 
     // Parse header and body
-    // The prompt output format is: "THINKING FROM ...:\n[Step 1]..."
-    // We want to extract that first line if it looks like a header.
     const lines = content.split('\n');
-    let header = `THINKING FROM ${persona.name.toUpperCase()}`;
+    let header = `VIEW REASONING (${persona.name.toUpperCase()})`;
     let body = content;
 
     if (lines[0].toUpperCase().startsWith('THINKING')) {
-        header = lines[0].replace(':', '');
+        header = lines[0].replace(':', '').trim();
         body = lines.slice(1).join('\n').trim();
     }
 
-    // Persona-specific accent colors (can expand this later)
-    const accentColor = "#5e6ad2"; // Default Indigo/Purple for "Intelligence"
+    // If both body and content are functionally empty, don't show the card
+    if (!body.trim() && !content.trim()) return null;
 
     return (
         <div className="w-full my-2">
@@ -35,7 +33,7 @@ export function ThinkingCard({ content, personaId, isExpanded = true }: Thinking
                 className={clsx(
                     "rounded-xl overflow-hidden border transition-all duration-300",
                     expanded
-                        ? "bg-[#0F0F10] border-indigo-500/30 shadow-[0_0_15px_rgba(94,106,210,0.1)]"
+                        ? "bg-[#0F0F10] border-indigo-500/30 shadow-[0_0_15px_rgba(94,106,210,0.15)]"
                         : "bg-[#0F0F10] border-white/5 hover:border-white/10"
                 )}
             >
@@ -46,17 +44,17 @@ export function ThinkingCard({ content, personaId, isExpanded = true }: Thinking
                 >
                     <div className="flex items-center gap-2.5">
                         <div className={clsx(
-                            "w-1.5 h-1.5 rounded-full animate-pulse",
-                            expanded ? "bg-indigo-400" : "bg-gray-600"
+                            "w-1.5 h-1.5 rounded-full",
+                            expanded ? "bg-indigo-400 animate-pulse" : "bg-gray-600"
                         )} />
-                        <span className="font-display text-[11px] uppercase tracking-[0.15em] font-bold text-indigo-400 group-hover:text-indigo-300 transition-colors">
-                            {header}
+                        <span className="font-display text-[10px] uppercase tracking-[0.15em] font-bold text-gray-400 group-hover:text-indigo-300 transition-colors">
+                            {expanded ? header : "VIEW REASONING"}
                         </span>
                     </div>
 
                     <div className="flex items-center gap-2 text-gray-500">
-                        <span className="text-[10px] font-medium opacity-0 group-hover:opacity-100 transition-opacity">
-                            {expanded ? 'COLLAPSE' : 'EXPAND'}
+                        <span className="text-[9px] font-medium opacity-0 group-hover:opacity-100 transition-opacity">
+                            {expanded ? 'HIDE' : 'SHOW'}
                         </span>
                         {expanded ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
                     </div>
@@ -74,7 +72,7 @@ export function ThinkingCard({ content, personaId, isExpanded = true }: Thinking
                             <div className="px-4 pb-4 overflow-hidden">
                                 <div className="pl-4 border-l border-white/10 ml-0.5">
                                     <div className="font-mono text-[12px] leading-relaxed text-gray-400 whitespace-pre-wrap">
-                                        {body || <span className="italic text-gray-600">Analyzing...</span>}
+                                        {body}
                                     </div>
                                 </div>
                             </div>

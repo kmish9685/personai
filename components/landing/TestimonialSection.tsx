@@ -2,13 +2,13 @@
 
 const TESTIMONIALS = [
     {
-        quote: "I fired my co-founder after a 20-minute session with the Steve Jobs persona. It was brutal, but it was the right call. Saved my company.",
+        quote: "I fired my co-founder after a 20-minute session with the Simplicity framework. It was brutal, but it was the right call. Saved my company.",
         author: "Tech Founder",
         role: "Seed Stage SaaS",
         metric: "Saved 6mo Runway"
     },
     {
-        quote: "The Elon persona tore apart my unit economics. I realized I was scaling a loss. Pivoted to enterprise sales the next week.",
+        quote: "The Inversion framework tore apart my unit economics. I realized I was scaling a loss. Pivoted to enterprise sales the next week.",
         author: "Growth Lead",
         role: "E-commerce Aggregator",
         metric: "+40% Margins"

@@ -9,10 +9,10 @@ export default function ChatDemoSection() {
                 <div className="text-center mb-14">
                     <div className="inline-flex items-center gap-2 px-2.5 py-1 rounded-full mb-6" style={{ background: 'rgba(94,106,210,0.15)', border: '1px solid rgba(94,106,210,0.2)' }}>
                         <MessageSquare size={12} style={{ color: '#5e6ad2' }} />
-                        <span className="text-[11px] font-medium uppercase tracking-[0.06em]" style={{ color: '#5e6ad2' }}>Advisor Chat Mode</span>
+                        <span className="text-[11px] font-medium uppercase tracking-[0.06em]" style={{ color: '#5e6ad2' }}>Framework Chat Mode</span>
                     </div>
-                    <h2 className="text-3xl sm:text-[44px] font-semibold mb-3" style={{ letterSpacing: '-0.03em' }}>Don't chat. Consult.</h2>
-                    <p className="text-[15px]" style={{ color: 'var(--text-secondary)' }}>Standard bots agree with you. Advisors challenge you.</p>
+                    <h2 className="text-3xl sm:text-[44px] font-semibold mb-3" style={{ letterSpacing: '-0.03em' }}>Don't chat. Decide.</h2>
+                    <p className="text-[15px]" style={{ color: 'var(--text-secondary)' }}>Standard bots agree with you. Frameworks challenge you.</p>
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-[1px]" style={{ background: 'var(--border-subtle)' }}>
@@ -43,11 +43,11 @@ export default function ChatDemoSection() {
                         </div>
                     </div>
 
-                    {/* RIGHT: Persona Advisor (Elon) */}
+                    {/* RIGHT: Inversion Framework */}
                     <div className="p-8 relative" style={{ background: 'var(--bg-elevated)' }}>
                         <div className="absolute top-4 right-4 opacity-10"><Zap size={20} style={{ color: '#5e6ad2' }} /></div>
                         <div className="mb-5">
-                            <h3 className="text-[11px] font-semibold uppercase tracking-[0.06em]" style={{ color: '#5e6ad2' }}>Elon Persona</h3>
+                            <h3 className="text-[11px] font-semibold uppercase tracking-[0.06em]" style={{ color: '#5e6ad2' }}>Inversion Framework</h3>
                         </div>
                         <div className="space-y-5">
                             {/* User Message */}

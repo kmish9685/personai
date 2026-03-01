@@ -1,11 +1,17 @@
 import { NextResponse } from 'next/server';
 import Razorpay from 'razorpay';
 import { PRICING_CONFIG } from '@/lib/pricing-config';
+import { auth } from '@clerk/nextjs/server';
 
 export const dynamic = 'force-dynamic';
 
 export async function POST(req: Request) {
     try {
+        const { userId } = await auth();
+        if (!userId) {
+            return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+        }
+
         const body = await req.json();
         const { plan = 'annual' } = body; // Default to annual if not specified
 
@@ -32,7 +38,8 @@ export async function POST(req: Request) {
             currency: "INR",
             payment_capture: 1, // Auto capture
             notes: {
-                plan_type: plan // Store plan type in notes for reference
+                plan_type: plan, // Store plan type in notes for reference
+                clerk_user_id: userId // CRITICAL: Used for automated upgrade
             }
         };
 

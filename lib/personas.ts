@@ -1,52 +1,88 @@
-export const PERSONAS = [
+export const FRAMEWORKS = [
     {
-        id: "elon",
-        name: "Elon Musk",
-        description: "First-principles engineering thinking. Physics-based problem solving.",
+        id: "inversion",
+        name: "Inversion",
+        inspiredBy: "Elon Musk",
+        description: "What's the fastest way this fails? Strip to physics-level truth.",
         image: "/personas/elon.jpg",
-        tagline: "First Principles"
+        tagline: "First Principles",
+        color: "#FF9500"
     },
     {
-        id: "naval",
-        name: "Naval Ravikant",
-        description: "Leverage, wealth principles, and philosophical startup wisdom.",
+        id: "leverage",
+        name: "Leverage Analysis",
+        inspiredBy: "Naval Ravikant",
+        description: "Find the high-leverage move. If it doesn't scale while you sleep, skip it.",
         image: "/personas/naval.jpg",
-        tagline: "Leverage & Wealth"
+        tagline: "Leverage & Wealth",
+        color: "#3B82F6"
     },
     {
-        id: "paul",
-        name: "Paul Graham",
-        description: "Y Combinator wisdom. Essays-based startup fundamentals.",
+        id: "user_truth",
+        name: "User Truth",
+        inspiredBy: "Paul Graham",
+        description: "Are you making something people want? Or playing startup?",
         image: "/personas/paul.jpg",
-        tagline: "YC Wisdom"
+        tagline: "YC Wisdom",
+        color: "#A855F7"
     },
     {
-        id: "bezos",
-        name: "Jeff Bezos",
-        description: "Customer obsession. Long-term thinking. Day 1 mindset.",
+        id: "customer_back",
+        name: "Customer-Back",
+        inspiredBy: "Jeff Bezos",
+        description: "Work backwards from what the customer actually needs.",
         image: "/personas/bezos.jpg",
-        tagline: "Customer Obsessed"
+        tagline: "Customer Obsessed",
+        color: "#6B7280"
     },
     {
-        id: "jobs",
-        name: "Steve Jobs",
-        description: "Design-first simplicity. Saying no. Taste and vision.",
+        id: "simplicity",
+        name: "Simplicity Filter",
+        inspiredBy: "Steve Jobs",
+        description: "Remove the clutter. Focus on the one thing that matters.",
         image: "/personas/jobs.jpg",
-        tagline: "Design & Taste"
+        tagline: "Design & Taste",
+        color: "#FFFFFF"
     },
     {
-        id: "thiel",
-        name: "Peter Thiel",
-        description: "Contrarian strategy. Zero-to-one thinking. Monopoly focus.",
+        id: "contrarian",
+        name: "Contrarian Check",
+        inspiredBy: "Peter Thiel",
+        description: "What does everyone believe that's wrong? Find the secret.",
         image: "/personas/thiel.jpg",
-        tagline: "Contrarian Strategy"
+        tagline: "Zero to One",
+        color: "#EF4444"
     }
 ];
 
-export function getPersonaById(id: string) {
-    return PERSONAS.find(p => p.id === id) || PERSONAS[0];
+// Backward compatibility: alias for components still using PERSONAS
+export const PERSONAS = FRAMEWORKS;
+
+export function getFrameworkById(id: string) {
+    return FRAMEWORKS.find(f => f.id === id) || FRAMEWORKS[0];
 }
 
+// Backward compatibility
+export function getPersonaById(id: string) {
+    // Support both old persona IDs (elon, naval, etc.) and new framework IDs
+    const legacyMap: Record<string, string> = {
+        elon: 'inversion',
+        naval: 'leverage',
+        paul: 'user_truth',
+        bezos: 'customer_back',
+        jobs: 'simplicity',
+        thiel: 'contrarian',
+    };
+    const frameworkId = legacyMap[id] || id;
+    return FRAMEWORKS.find(f => f.id === frameworkId) || FRAMEWORKS[0];
+}
+
+export function isValidFramework(id: string): boolean {
+    return FRAMEWORKS.some(f => f.id === id);
+}
+
+// Backward compatibility
 export function isValidPersona(id: string): boolean {
-    return PERSONAS.some(p => p.id === id);
+    const legacyIds = ['elon', 'naval', 'paul', 'bezos', 'jobs', 'thiel'];
+    return legacyIds.includes(id) || isValidFramework(id);
 }
