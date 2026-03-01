@@ -1,11 +1,18 @@
 import { NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
+import { auth } from '@clerk/nextjs/server';
 
 const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL;
 const SUPABASE_SERVICE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
 
 export async function PATCH(req: Request) {
     try {
+        const { userId } = await auth();
+
+        if (!userId) {
+            return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+        }
+
         if (!SUPABASE_URL || !SUPABASE_SERVICE_KEY) {
             return NextResponse.json({ error: 'Supabase not configured' }, { status: 500 });
         }
@@ -20,6 +27,22 @@ export async function PATCH(req: Request) {
             return NextResponse.json({ error: 'Missing decisionId or reaction' }, { status: 400 });
         }
 
+        // 1. Verify Ownership
+        const { data: decision, error: fetchError } = await supabase
+            .from('decisions')
+            .select('user_id')
+            .eq('id', decisionId)
+            .single();
+
+        if (fetchError || !decision) {
+            return NextResponse.json({ error: 'Decision not found' }, { status: 404 });
+        }
+
+        if (decision.user_id !== userId) {
+            return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+        }
+
+        // 2. Perform Update
         const { error } = await supabase
             .from('decisions')
             .update({
