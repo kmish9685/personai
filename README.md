@@ -1,78 +1,68 @@
-# PersonAI
+# PersonAI — The Decision Engine for Builders
 
-PersonAI is an AI-powered personality engine that generates dynamic conversational personas for interaction, storytelling, simulation, and experimentation.
+**Live:** [personai.fun](https://personai.fun)
 
-Live Product  
-https://personai.fun
-
----
-
-## Overview
-
-PersonAI allows users to create unique AI personalities with custom traits, behaviors, and response styles. The system dynamically generates responses based on persona configuration and conversation context.
-
-The project focuses on building a scalable AI interaction layer combining prompt engineering, API orchestration, and modern web infrastructure.
-
----
-
-## Core Features
-
-• AI-generated personalities  
-• Custom persona configuration  
-• Real-time conversational responses  
-• Fast backend processing  
-• Web-based user interface  
-
----
+PersonAI helps founders, students, and builders make hard decisions. Instead of open-ended chat, it gives a clear verdict, checks the decision against your values, and sets "kill signals": dated checkpoints that tell you when to quit.
 
 ## Screenshots
 
-### Landing Page
-![Landing](screenshots/landing.png)
+| Landing | Analysis | Dashboard |
+|---|---|---|
+| ![Landing](screenshots/landing.png) | ![Analysis](screenshots/generation.png) | ![Dashboard](screenshots/dashboard.png) |
 
-### Persona Generation
-![Generation](screenshots/generation.png)
+## Features
 
-### Interface
-![Dashboard](screenshots/dashboard.png)
+- **Binary verdict:** a clear YES or NO with reasoning, not a long list of "it depends"
+- **Values alignment check:** tests the decision against what you said matters to you (e.g., security over freedom, speed over quality)
+- **Kill signals:** checkpoints with a date and an expected metric; if the metric isn't met, it's time to stop
+- **Decision threads:** every decision is saved with its inputs, analysis, conviction score, and status (active, completed, or killed)
+- **Advisor personas:** get the same problem analysed from different thinking styles
+- **Free and Pro plans:** usage limits on the free tier; payments via Razorpay (India) and Polar (international)
 
----
+## Tech Stack
 
-## Architecture
+| Layer | Technology |
+|---|---|
+| Frontend | Next.js 16, React 19, TypeScript, Tailwind CSS, Framer Motion |
+| Backend | FastAPI (Python) and Next.js API routes |
+| AI | Llama 3.3 70B via the Groq API |
+| Database | Supabase (PostgreSQL) |
+| Authentication | Clerk |
+| Payments | Razorpay, Polar |
+| Analytics | PostHog, Vercel Speed Insights |
+| Hosting | Vercel (frontend), Railway (backend) |
 
-Frontend  
-React / Next.js  
-Tailwind CSS  
+## How It Works
 
-Backend  
-API server handling prompt orchestration  
+1. The user describes a decision, its options, and their constraints.
+2. The backend builds a structured prompt and sends it to Llama 3.3 70B through Groq.
+3. The model returns a verdict, a values check, and suggested kill-signal checkpoints.
+4. The decision and its checkpoints are saved in Supabase so the user can come back, update the status, and stay accountable.
 
-AI Layer  
-OpenAI API  
-Prompt engineering  
+## Run Locally
 
-Infrastructure  
-Supabase / database services  
-Vercel deployment  
+```bash
+git clone https://github.com/kmish9685/personai.git
+cd personai
+npm install
+cp backend/.env.example backend/.env   # add your own keys
+npm run dev
+```
 
----
+Backend:
 
-## Use Cases
+```bash
+cd backend
+pip install -r requirements.txt
+uvicorn main:app --reload
+```
 
-• AI character creation  
-• Interactive storytelling  
-• Simulation environments  
-• Persona-based experimentation  
+You will need your own keys for Groq, Supabase, and Clerk. Never commit real keys.
 
----
+## Status
 
-## Project Status
-
-Active development.  
-Continuously improving prompt design and system capabilities.
-
----
+Live and in active development.
 
 ## Author
 
-Kuldeep Prasad Mishra
+**Kuldeep Prasad Mishra** — [LinkedIn](https://www.linkedin.com/in/k-mishra980) · [GitHub](https://github.com/kmish9685)
